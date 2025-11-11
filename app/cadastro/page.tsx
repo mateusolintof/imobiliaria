@@ -1,24 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  Container,
-  Box,
-  Typography,
-  Stepper,
-  Step,
-  StepLabel,
-  Button,
-  Alert,
-  Snackbar,
-} from '@mui/material'
+import { useRouter } from 'next/navigation'
 import MainLayout from '@/components/MainLayout'
 import PropertyTypeStep from '@/components/cadastro/PropertyTypeStep'
 import BasicInfoStep from '@/components/cadastro/BasicInfoStep'
 import FinancialInfoStep from '@/components/cadastro/FinancialInfoStep'
+import { Button } from '@/components/ui/button'
 import { PropertyFormData, PropertyType } from '@/types'
 import { useProperties } from '@/hooks/useProperties'
-import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
+import { Check } from 'lucide-react'
 
 const steps = ['Tipo de Imóvel', 'Informações Básicas', 'Dados Financeiros']
 
@@ -53,7 +46,6 @@ export default function CadastroPage() {
   const [activeStep, setActiveStep] = useState(0)
   const [formData, setFormData] = useState<Partial<PropertyFormData>>(initialFormData)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
 
   const handleNext = () => {
     if (validateStep(activeStep)) {
@@ -105,11 +97,7 @@ export default function CadastroPage() {
       const property = await addProperty(formData as PropertyFormData)
 
       if (property) {
-        setSnackbar({
-          open: true,
-          message: 'Imóvel cadastrado com sucesso!',
-          severity: 'success',
-        })
+        toast.success('Imóvel cadastrado com sucesso!')
 
         // Reset form and redirect after a delay
         setTimeout(() => {
@@ -121,11 +109,7 @@ export default function CadastroPage() {
         throw new Error('Erro ao cadastrar imóvel')
       }
     } catch (error: any) {
-      setSnackbar({
-        open: true,
-        message: error.message || 'Erro ao cadastrar imóvel',
-        severity: 'error',
-      })
+      toast.error(error.message || 'Erro ao cadastrar imóvel')
     }
   }
 
@@ -166,67 +150,76 @@ export default function CadastroPage() {
 
   return (
     <MainLayout>
-      <Container maxWidth="md">
-        <Box sx={{ py: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            Cadastrar Imóvel
-          </Typography>
-          <Typography variant="body2" color="text.secondary" paragraph>
+      <div className="container mx-auto max-w-4xl px-4">
+        <div className="rounded-lg bg-white p-8 shadow-sm">
+          <h1 className="mb-2 text-3xl font-bold">Cadastrar Imóvel</h1>
+          <p className="mb-8 text-sm text-muted-foreground">
             Preencha as informações do imóvel para adicioná-lo ao seu portfólio
-          </Typography>
+          </p>
 
-          <Stepper activeStep={activeStep} sx={{ my: 4 }}>
-            {steps.map((label) => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
+          {/* Custom Stepper */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              {steps.map((label, index) => (
+                <div key={label} className="flex flex-1 items-center">
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={cn(
+                        'flex h-10 w-10 items-center justify-center rounded-full border-2 font-semibold',
+                        index < activeStep
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : index === activeStep
+                          ? 'border-primary bg-background text-primary'
+                          : 'border-muted bg-background text-muted-foreground'
+                      )}
+                    >
+                      {index < activeStep ? <Check className="h-5 w-5" /> : index + 1}
+                    </div>
+                    <div className="mt-2 text-center">
+                      <p
+                        className={cn(
+                          'text-sm font-medium',
+                          index <= activeStep ? 'text-foreground' : 'text-muted-foreground'
+                        )}
+                      >
+                        {label}
+                      </p>
+                    </div>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div
+                      className={cn(
+                        'mx-4 h-[2px] flex-1',
+                        index < activeStep ? 'bg-primary' : 'bg-muted'
+                      )}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
 
-          <Box sx={{ mt: 4 }}>
-            {renderStepContent(activeStep)}
+          {/* Step Content */}
+          <div className="mb-8">{renderStepContent(activeStep)}</div>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button
-                disabled={activeStep === 0}
-                onClick={handleBack}
-              >
-                Voltar
-              </Button>
+          {/* Navigation Buttons */}
+          <div className="flex justify-between">
+            <Button
+              variant="outline"
+              disabled={activeStep === 0}
+              onClick={handleBack}
+            >
+              Voltar
+            </Button>
 
-              {activeStep === steps.length - 1 ? (
-                <Button
-                  variant="contained"
-                  onClick={handleSubmit}
-                >
-                  Cadastrar Imóvel
-                </Button>
-              ) : (
-                <Button
-                  variant="contained"
-                  onClick={handleNext}
-                >
-                  Próximo
-                </Button>
-              )}
-            </Box>
-          </Box>
-        </Box>
-
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={6000}
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-        >
-          <Alert
-            onClose={() => setSnackbar({ ...snackbar, open: false })}
-            severity={snackbar.severity}
-            sx={{ width: '100%' }}
-          >
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
-      </Container>
+            {activeStep === steps.length - 1 ? (
+              <Button onClick={handleSubmit}>Cadastrar Imóvel</Button>
+            ) : (
+              <Button onClick={handleNext}>Próximo</Button>
+            )}
+          </div>
+        </div>
+      </div>
     </MainLayout>
   )
 }

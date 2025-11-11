@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter'
-import { ThemeProvider } from '@mui/material/styles'
-import CssBaseline from '@mui/material/CssBaseline'
-import theme from '@/lib/theme'
+import { Toaster } from '@/components/ui/sonner'
+import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Plataforma de Análise Imobiliária',
@@ -16,13 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body>
-        <AppRouterCacheProvider>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            {children}
-          </ThemeProvider>
-        </AppRouterCacheProvider>
+      <body className="min-h-screen bg-background font-sans antialiased">
+        {children}
+        <Toaster />
       </body>
     </html>
   )

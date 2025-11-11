@@ -1,107 +1,79 @@
 'use client'
 
-import React, { useState } from 'react'
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Tabs,
-  Tab,
-  Box,
-  Container
-} from '@mui/material'
+import React from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import HomeIcon from '@mui/icons-material/Home'
-import AddHomeIcon from '@mui/icons-material/AddHome'
-import ListIcon from '@mui/icons-material/List'
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
-import TrendingUpIcon from '@mui/icons-material/TrendingUp'
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
-import SettingsIcon from '@mui/icons-material/Settings'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Home,
+  PlusCircle,
+  List,
+  DollarSign,
+  TrendingUp,
+  ArrowLeftRight,
+  Settings
+} from 'lucide-react'
 
 interface MainLayoutProps {
   children: React.ReactNode
 }
 
 const routes = [
-  { path: '/', label: 'Início', icon: <HomeIcon /> },
-  { path: '/cadastro', label: 'Cadastro', icon: <AddHomeIcon /> },
-  { path: '/meus-imoveis', label: 'Meus Imóveis', icon: <ListIcon /> },
-  { path: '/moradia', label: 'Moradia', icon: <AttachMoneyIcon /> },
-  { path: '/investimento', label: 'Investimento', icon: <TrendingUpIcon /> },
-  { path: '/comparar', label: 'Comparar', icon: <CompareArrowsIcon /> },
-  { path: '/parametros', label: 'Parâmetros', icon: <SettingsIcon /> },
+  { path: '/', label: 'Início', icon: Home },
+  { path: '/cadastro', label: 'Cadastro', icon: PlusCircle },
+  { path: '/meus-imoveis', label: 'Meus Imóveis', icon: List },
+  { path: '/moradia', label: 'Moradia', icon: DollarSign },
+  { path: '/investimento', label: 'Investimento', icon: TrendingUp },
+  { path: '/comparar', label: 'Comparar', icon: ArrowLeftRight },
+  { path: '/parametros', label: 'Parâmetros', icon: Settings },
 ]
 
 export default function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
 
-  const currentTab = routes.findIndex(route => route.path === pathname)
-  const tabValue = currentTab >= 0 ? currentTab : 0
-
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    router.push(routes[newValue].path)
-  }
-
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar position="static" elevation={1}>
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Plataforma Imobiliária
-          </Typography>
-        </Toolbar>
+    <div className="flex min-h-screen flex-col">
+      <header className="bg-primary text-primary-foreground">
+        <div className="container mx-auto flex h-16 items-center px-4">
+          <h1 className="text-xl font-semibold">Plataforma Imobiliária</h1>
+        </div>
         <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          variant="scrollable"
-          scrollButtons="auto"
-          sx={{
-            bgcolor: 'primary.dark',
-            '& .MuiTab-root': {
-              color: 'rgba(255,255,255,0.7)',
-              minHeight: 64,
-            },
-            '& .Mui-selected': {
-              color: 'white',
-            },
-          }}
+          value={pathname}
+          onValueChange={(value) => router.push(value)}
+          className="w-full border-t border-primary-dark/20"
         >
-          {routes.map((route, index) => (
-            <Tab
-              key={route.path}
-              icon={route.icon}
-              label={route.label}
-              iconPosition="start"
-            />
-          ))}
+          <TabsList className="h-auto w-full justify-start rounded-none bg-primary-dark/10 p-0">
+            {routes.map((route) => {
+              const Icon = route.icon
+              return (
+                <TabsTrigger
+                  key={route.path}
+                  value={route.path}
+                  className="flex items-center gap-2 rounded-none border-b-2 border-transparent px-6 py-3 data-[state=active]:border-white data-[state=active]:bg-primary-dark/20"
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="hidden sm:inline">{route.label}</span>
+                </TabsTrigger>
+              )
+            })}
+          </TabsList>
         </Tabs>
-      </AppBar>
+      </header>
 
-      <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default', py: 3 }}>
+      <main className="flex-1 bg-gray-50 py-6">
         {children}
-      </Box>
+      </main>
 
-      <Box
-        component="footer"
-        sx={{
-          py: 2,
-          px: 2,
-          bgcolor: 'grey.100',
-          borderTop: '1px solid',
-          borderColor: 'grey.300',
-        }}
-      >
-        <Container maxWidth="lg">
-          <Typography variant="body2" color="text.secondary" align="center">
+      <footer className="border-t bg-white py-4">
+        <div className="container mx-auto px-4">
+          <p className="text-center text-sm text-muted-foreground">
             Plataforma de Análise Imobiliária © {new Date().getFullYear()}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" align="center" display="block" sx={{ mt: 0.5 }}>
+          </p>
+          <p className="mt-1 text-center text-xs text-muted-foreground">
             Os dados e simulações fornecidos não constituem aconselhamento financeiro ou tributário.
-          </Typography>
-        </Container>
-      </Box>
-    </Box>
+          </p>
+        </div>
+      </footer>
+    </div>
   )
 }

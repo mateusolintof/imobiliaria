@@ -1,24 +1,23 @@
 'use client'
 
-import { Container, Box, Typography } from '@mui/material'
 import MainLayout from '@/components/MainLayout'
 
 export default function InvestimentoPage() {
   return (
     <MainLayout>
-      <Container maxWidth="lg">
-        <Box sx={{ py: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
+      <div className="container mx-auto max-w-4xl px-4">
+        <div className="rounded-lg bg-white p-8 shadow-sm">
+          <h1 className="mb-4 text-3xl font-bold text-gray-900">
             Análise de Investimento
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
+          </h1>
+          <p className="text-gray-600">
             Calcule rentabilidade, Cap Rate, IRR e analise riscos de investimento imobiliário.
-          </Typography>
-          <Typography variant="body2" color="warning.main" sx={{ mt: 2 }}>
+          </p>
+          <p className="mt-4 text-sm text-amber-600">
             Em desenvolvimento...
-          </Typography>
-        </Box>
-      </Container>
+          </p>
+        </div>
+      </div>
     </MainLayout>
   )
 }

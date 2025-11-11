@@ -1,56 +1,67 @@
 'use client'
 
-import { Container, Box, Typography } from '@mui/material'
 import MainLayout from '@/components/MainLayout'
 
 export default function HomePage() {
   return (
     <MainLayout>
-      <Container maxWidth="lg">
-        <Box sx={{ py: 4 }}>
-          <Typography variant="h3" component="h1" gutterBottom>
+      <div className="container mx-auto max-w-4xl px-4">
+        <div className="rounded-lg bg-white p-8 shadow-sm">
+          <h1 className="mb-4 text-4xl font-bold text-gray-900">
             Bem-vindo à Plataforma de Análise Imobiliária
-          </Typography>
-          <Typography variant="body1" color="text.secondary" paragraph>
+          </h1>
+          <p className="mb-6 text-lg text-gray-600">
             Organize seus imóveis, simule cenários financeiros e tome decisões mais informadas.
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
+          </p>
+          <p className="mb-4 text-sm font-medium text-gray-700">
             Use a navegação acima para começar:
-          </Typography>
-          <Box component="ul" sx={{ mt: 2 }}>
-            <li>
-              <Typography variant="body2">
-                <strong>Cadastro:</strong> Adicione imóveis ao seu portfólio
-              </Typography>
+          </p>
+          <ul className="space-y-3">
+            <li className="flex items-start">
+              <span className="mr-2 text-primary">•</span>
+              <div>
+                <strong className="text-gray-900">Cadastro:</strong>
+                <span className="text-gray-600"> Adicione imóveis ao seu portfólio</span>
+              </div>
             </li>
-            <li>
-              <Typography variant="body2">
-                <strong>Meus Imóveis:</strong> Gerencie e organize seus imóveis
-              </Typography>
+            <li className="flex items-start">
+              <span className="mr-2 text-primary">•</span>
+              <div>
+                <strong className="text-gray-900">Meus Imóveis:</strong>
+                <span className="text-gray-600"> Gerencie e organize seus imóveis</span>
+              </div>
             </li>
-            <li>
-              <Typography variant="body2">
-                <strong>Moradia:</strong> Simule financiamentos e custos de moradia
-              </Typography>
+            <li className="flex items-start">
+              <span className="mr-2 text-primary">•</span>
+              <div>
+                <strong className="text-gray-900">Moradia:</strong>
+                <span className="text-gray-600"> Simule financiamentos e custos de moradia</span>
+              </div>
             </li>
-            <li>
-              <Typography variant="body2">
-                <strong>Investimento:</strong> Analise rentabilidade e riscos
-              </Typography>
+            <li className="flex items-start">
+              <span className="mr-2 text-primary">•</span>
+              <div>
+                <strong className="text-gray-900">Investimento:</strong>
+                <span className="text-gray-600"> Analise rentabilidade e riscos</span>
+              </div>
             </li>
-            <li>
-              <Typography variant="body2">
-                <strong>Comparar:</strong> Compare múltiplos imóveis lado a lado
-              </Typography>
+            <li className="flex items-start">
+              <span className="mr-2 text-primary">•</span>
+              <div>
+                <strong className="text-gray-900">Comparar:</strong>
+                <span className="text-gray-600"> Compare múltiplos imóveis lado a lado</span>
+              </div>
             </li>
-            <li>
-              <Typography variant="body2">
-                <strong>Parâmetros:</strong> Configure suas preferências
-              </Typography>
+            <li className="flex items-start">
+              <span className="mr-2 text-primary">•</span>
+              <div>
+                <strong className="text-gray-900">Parâmetros:</strong>
+                <span className="text-gray-600"> Configure suas preferências</span>
+              </div>
             </li>
-          </Box>
-        </Box>
-      </Container>
+          </ul>
+        </div>
+      </div>
     </MainLayout>
   )
 }

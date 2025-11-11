@@ -1,13 +1,9 @@
 'use client'
 
-import {
-  Box,
-  TextField,
-  Grid,
-  Typography,
-  MenuItem,
-  Divider,
-} from '@mui/material'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { PropertyFormData, ConstructionPhase } from '@/types'
 
 interface FinancialInfoStepProps {
@@ -44,204 +40,216 @@ export default function FinancialInfoStep({ formData, onChange, errors }: Financ
   const isReady = formData.type === 'ready'
 
   return (
-    <Box>
-      <Typography variant="h6" gutterBottom>
-        Informações Financeiras
-      </Typography>
+    <div>
+      <h2 className="mb-6 text-xl font-semibold">Informações Financeiras</h2>
 
-      <Grid container spacing={3} sx={{ mt: 1 }}>
+      <div className="space-y-6">
         {isReady ? (
           <>
             {/* Imóvel Pronto */}
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Valor Total Pedido (R$)"
+            <div>
+              <Label htmlFor="readyPrice">Valor Total Pedido (R$) *</Label>
+              <Input
+                id="readyPrice"
                 type="number"
+                step="1000"
+                min="0"
                 value={formData.readyPrice || ''}
                 onChange={(e) => handleChange('readyPrice', parseFloat(e.target.value))}
-                error={!!errors.readyPrice}
-                helperText={errors.readyPrice || 'Valor total do imóvel pronto'}
-                required
-                InputProps={{ inputProps: { min: 0, step: 1000 } }}
+                className={errors.readyPrice ? 'border-destructive' : ''}
               />
-            </Grid>
+              {errors.readyPrice ? (
+                <p className="mt-1 text-sm text-destructive">{errors.readyPrice}</p>
+              ) : (
+                <p className="mt-1 text-sm text-muted-foreground">Valor total do imóvel pronto</p>
+              )}
+            </div>
 
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Anotações de Negociação"
-                multiline
+            <div>
+              <Label htmlFor="negotiationNotes">Anotações de Negociação</Label>
+              <textarea
+                id="negotiationNotes"
                 rows={3}
                 value={formData.negotiationNotes || ''}
                 onChange={(e) => handleChange('negotiationNotes', e.target.value)}
                 placeholder="Ex: Margem de desconto, urgência do vendedor, condições especiais"
+                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
-            </Grid>
+            </div>
 
-            <Grid item xs={12}>
-              <Typography variant="body2" color="text.secondary">
-                Preço/m²: {formData.readyPrice && formData.privateArea
-                  ? `R$ ${(formData.readyPrice / formData.privateArea).toFixed(2)}`
-                  : '—'}
-              </Typography>
-            </Grid>
+            {formData.readyPrice && formData.privateArea && (
+              <p className="text-sm text-muted-foreground">
+                Preço/m²: R$ {(formData.readyPrice / formData.privateArea).toFixed(2)}
+              </p>
+            )}
           </>
         ) : (
           <>
             {/* Imóvel Na Planta */}
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Previsão de Entrega"
-                type="date"
-                value={formData.deliveryDate ? new Date(formData.deliveryDate).toISOString().split('T')[0] : ''}
-                onChange={(e) => handleChange('deliveryDate', new Date(e.target.value))}
-                error={!!errors.deliveryDate}
-                helperText={errors.deliveryDate}
-                required
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="deliveryDate">Previsão de Entrega *</Label>
+                <Input
+                  id="deliveryDate"
+                  type="date"
+                  value={formData.deliveryDate ? new Date(formData.deliveryDate).toISOString().split('T')[0] : ''}
+                  onChange={(e) => handleChange('deliveryDate', new Date(e.target.value))}
+                  className={errors.deliveryDate ? 'border-destructive' : ''}
+                />
+                {errors.deliveryDate && <p className="mt-1 text-sm text-destructive">{errors.deliveryDate}</p>}
+              </div>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Fase da Obra"
-                value={formData.constructionPhase || 'launch'}
-                onChange={(e) => handleChange('constructionPhase', e.target.value)}
-                select
-              >
-                {constructionPhases.map((phase) => (
-                  <MenuItem key={phase.value} value={phase.value}>
-                    {phase.label}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
+              <div>
+                <Label htmlFor="constructionPhase">Fase da Obra</Label>
+                <Select
+                  value={formData.constructionPhase || 'launch'}
+                  onValueChange={(value) => handleChange('constructionPhase', value)}
+                >
+                  <SelectTrigger id="constructionPhase">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {constructionPhases.map((phase) => (
+                      <SelectItem key={phase.value} value={phase.value}>
+                        {phase.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Preço/m² (R$)"
-                type="number"
-                value={formData.pricePerSqm || ''}
-                onChange={(e) => handleChange('pricePerSqm', parseFloat(e.target.value))}
-                error={!!errors.pricePerSqm}
-                helperText={errors.pricePerSqm || 'Valor por metro quadrado'}
-                required
-                InputProps={{ inputProps: { min: 0, step: 100 } }}
-              />
-            </Grid>
+              <div>
+                <Label htmlFor="pricePerSqm">Preço/m² (R$) *</Label>
+                <Input
+                  id="pricePerSqm"
+                  type="number"
+                  step="100"
+                  min="0"
+                  value={formData.pricePerSqm || ''}
+                  onChange={(e) => handleChange('pricePerSqm', parseFloat(e.target.value))}
+                  className={errors.pricePerSqm ? 'border-destructive' : ''}
+                />
+                {errors.pricePerSqm ? (
+                  <p className="mt-1 text-sm text-destructive">{errors.pricePerSqm}</p>
+                ) : (
+                  <p className="mt-1 text-sm text-muted-foreground">Valor por metro quadrado</p>
+                )}
+              </div>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Índice de Correção"
-                value={formData.correctionIndex || 'INCC'}
-                onChange={(e) => handleChange('correctionIndex', e.target.value)}
-                select
-              >
-                {correctionIndices.map((index) => (
-                  <MenuItem key={index} value={index}>
-                    {index}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
+              <div>
+                <Label htmlFor="correctionIndex">Índice de Correção</Label>
+                <Select
+                  value={formData.correctionIndex || 'INCC'}
+                  onValueChange={(value) => handleChange('correctionIndex', value)}
+                >
+                  <SelectTrigger id="correctionIndex">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {correctionIndices.map((index) => (
+                      <SelectItem key={index} value={index}>
+                        {index}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-            <Grid item xs={12}>
-              <Typography variant="body2" color="text.secondary">
-                Valor Total Estimado: {formData.pricePerSqm && formData.privateArea
-                  ? `R$ ${(formData.pricePerSqm * formData.privateArea).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-                  : '—'}
-              </Typography>
-            </Grid>
+            {formData.pricePerSqm && formData.privateArea && (
+              <p className="text-sm text-muted-foreground">
+                Valor Total Estimado: R$ {(formData.pricePerSqm * formData.privateArea).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+            )}
 
-            <Grid item xs={12}>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="subtitle2" gutterBottom>
-                Plano de Pagamento (Opcional)
-              </Typography>
-              <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+            <Separator className="my-6" />
+
+            <div>
+              <h3 className="mb-2 text-sm font-medium">Plano de Pagamento (Opcional)</h3>
+              <p className="mb-4 text-xs text-muted-foreground">
                 Você pode adicionar estas informações depois
-              </Typography>
-            </Grid>
+              </p>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Sinal (R$)"
-                type="number"
-                value={formData.paymentPlan?.downPayment || ''}
-                onChange={(e) => handleChange('paymentPlan.downPayment', parseFloat(e.target.value))}
-                InputProps={{ inputProps: { min: 0, step: 1000 } }}
-              />
-            </Grid>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="downPayment">Sinal (R$)</Label>
+                  <Input
+                    id="downPayment"
+                    type="number"
+                    step="1000"
+                    min="0"
+                    value={formData.paymentPlan?.downPayment || ''}
+                    onChange={(e) => handleChange('paymentPlan.downPayment', parseFloat(e.target.value))}
+                  />
+                </div>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Parcelas até Entrega - Valor (R$)"
-                type="number"
-                value={formData.paymentPlan?.installments?.value || ''}
-                onChange={(e) => {
-                  handleChange('paymentPlan', {
-                    ...formData.paymentPlan,
-                    installments: {
-                      ...formData.paymentPlan?.installments,
-                      value: parseFloat(e.target.value),
-                    },
-                  })
-                }}
-                InputProps={{ inputProps: { min: 0, step: 100 } }}
-              />
-            </Grid>
+                <div>
+                  <Label htmlFor="installmentValue">Parcelas até Entrega - Valor (R$)</Label>
+                  <Input
+                    id="installmentValue"
+                    type="number"
+                    step="100"
+                    min="0"
+                    value={formData.paymentPlan?.installments?.value || ''}
+                    onChange={(e) => {
+                      handleChange('paymentPlan', {
+                        ...formData.paymentPlan,
+                        installments: {
+                          ...formData.paymentPlan?.installments,
+                          value: parseFloat(e.target.value),
+                        },
+                      })
+                    }}
+                  />
+                </div>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Parcelas até Entrega - Quantidade"
-                type="number"
-                value={formData.paymentPlan?.installments?.quantity || ''}
-                onChange={(e) => {
-                  handleChange('paymentPlan', {
-                    ...formData.paymentPlan,
-                    installments: {
-                      ...formData.paymentPlan?.installments,
-                      quantity: parseInt(e.target.value),
-                    },
-                  })
-                }}
-                InputProps={{ inputProps: { min: 0 } }}
-              />
-            </Grid>
+                <div>
+                  <Label htmlFor="installmentQuantity">Parcelas até Entrega - Quantidade</Label>
+                  <Input
+                    id="installmentQuantity"
+                    type="number"
+                    min="0"
+                    value={formData.paymentPlan?.installments?.quantity || ''}
+                    onChange={(e) => {
+                      handleChange('paymentPlan', {
+                        ...formData.paymentPlan,
+                        installments: {
+                          ...formData.paymentPlan?.installments,
+                          quantity: parseInt(e.target.value),
+                        },
+                      })
+                    }}
+                  />
+                </div>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Saldo nas Chaves (R$)"
-                type="number"
-                value={formData.paymentPlan?.balanceAtDelivery || ''}
-                onChange={(e) => handleChange('paymentPlan.balanceAtDelivery', parseFloat(e.target.value))}
-                InputProps={{ inputProps: { min: 0, step: 1000 } }}
-              />
-            </Grid>
+                <div>
+                  <Label htmlFor="balanceAtDelivery">Saldo nas Chaves (R$)</Label>
+                  <Input
+                    id="balanceAtDelivery"
+                    type="number"
+                    step="1000"
+                    min="0"
+                    value={formData.paymentPlan?.balanceAtDelivery || ''}
+                    onChange={(e) => handleChange('paymentPlan.balanceAtDelivery', parseFloat(e.target.value))}
+                  />
+                </div>
+              </div>
 
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Observações do Plano"
-                multiline
-                rows={2}
-                value={formData.paymentPlan?.observations || ''}
-                onChange={(e) => handleChange('paymentPlan.observations', e.target.value)}
-                placeholder="Ex: Balões, intermediárias, descontos"
-              />
-            </Grid>
+              <div className="mt-4">
+                <Label htmlFor="paymentPlanObservations">Observações do Plano</Label>
+                <textarea
+                  id="paymentPlanObservations"
+                  rows={2}
+                  value={formData.paymentPlan?.observations || ''}
+                  onChange={(e) => handleChange('paymentPlan.observations', e.target.value)}
+                  placeholder="Ex: Balões, intermediárias, descontos"
+                  className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+            </div>
           </>
         )}
-      </Grid>
-    </Box>
+      </div>
+    </div>
   )
 }

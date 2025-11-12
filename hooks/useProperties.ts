@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase, mapDbRowToProperty, mapPropertyToDb } from '@/lib/supabase'
 import { Property, PropertyFormData } from '@/types'
 
 export function useProperties() {
@@ -14,12 +14,13 @@ export function useProperties() {
       setLoading(true)
       const { data, error } = await supabase
         .from('properties')
-        .select('*, developer:developers(*)')
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (error) throw error
 
-      setProperties(data as Property[])
+      const mapped = (data || []).map(mapDbRowToProperty)
+      setProperties(mapped)
     } catch (err: any) {
       setError(err.message)
       console.error('Error fetching properties:', err)
@@ -30,16 +31,17 @@ export function useProperties() {
 
   const addProperty = async (propertyData: PropertyFormData): Promise<Property | null> => {
     try {
+      const dbInsert = mapPropertyToDb(propertyData)
       const { data, error } = await supabase
         .from('properties')
-        .insert([propertyData])
-        .select()
+        .insert([dbInsert])
+        .select('*')
         .single()
 
       if (error) throw error
 
       await fetchProperties()
-      return data as Property
+      return data ? mapDbRowToProperty(data) : null
     } catch (err: any) {
       setError(err.message)
       console.error('Error adding property:', err)
@@ -49,9 +51,10 @@ export function useProperties() {
 
   const updateProperty = async (id: string, updates: Partial<PropertyFormData>): Promise<boolean> => {
     try {
+      const dbUpdates = mapPropertyToDb(updates)
       const { error } = await supabase
         .from('properties')
-        .update(updates)
+        .update(dbUpdates)
         .eq('id', id)
 
       if (error) throw error
@@ -87,7 +90,7 @@ export function useProperties() {
     try {
       const { error } = await supabase
         .from('properties')
-        .update({ isFavorite: !currentValue })
+        .update({ is_favorite: !currentValue })
         .eq('id', id)
 
       if (error) throw error
@@ -129,13 +132,13 @@ export function useProperties() {
     try {
       const { data, error } = await supabase
         .from('properties')
-        .select('*, developer:developers(*)')
+        .select('*')
         .eq('id', id)
         .single()
 
       if (error) throw error
 
-      return data as Property
+      return data ? mapDbRowToProperty(data) : null
     } catch (err: any) {
       setError(err.message)
       console.error('Error fetching property:', err)

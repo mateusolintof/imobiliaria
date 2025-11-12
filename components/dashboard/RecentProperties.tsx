@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Property } from '@/types'
-import { MapPin, Home, ArrowRight, ImageIcon } from 'lucide-react'
+import { MapPin, Home, HardHat, ArrowRight, ImageIcon } from 'lucide-react'
 
 interface RecentPropertiesProps {
   properties: Property[]
@@ -54,7 +54,11 @@ export default function RecentProperties({ properties }: RecentPropertiesProps) 
       <div className="space-y-3">
         {recentProperties.map((property) => {
           const coverImage = property.images?.[0]
-          const totalPrice = property.price + (property.condoFee || 0) + (property.iptu || 0)
+          const basePrice =
+            property.type === 'ready'
+              ? property.readyPrice || 0
+              : (property.pricePerSqm || 0) * property.privateArea
+          const totalPrice = basePrice + (property.condoFee || 0) + (property.iptu || 0)
 
           return (
             <div
@@ -85,16 +89,15 @@ export default function RecentProperties({ properties }: RecentPropertiesProps) 
                       {property.name}
                     </h4>
                     <Badge variant="outline" className="shrink-0 text-xs">
-                      {property.type === 'apartment' && 'Apartamento'}
-                      {property.type === 'house' && 'Casa'}
-                      {property.type === 'land' && 'Terreno'}
-                      {property.type === 'commercial' && 'Comercial'}
+                      {property.type === 'ready' ? 'Pronto' : 'Na Planta'}
                     </Badge>
                   </div>
 
                   <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                     <MapPin className="h-3 w-3" />
-                    <span className="truncate">{property.address}</span>
+                    <span className="truncate">
+                      {property.address.neighborhood}, {property.address.city}
+                    </span>
                   </div>
                 </div>
 
@@ -108,7 +111,7 @@ export default function RecentProperties({ properties }: RecentPropertiesProps) 
                     </span>
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {property.area} m²
+                    {property.privateArea} m²
                   </div>
                 </div>
               </div>

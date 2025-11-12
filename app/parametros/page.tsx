@@ -1,27 +1,22 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect } from 'react'
-import {
-  Container,
-  Box,
-  Typography,
-  Grid,
-  TextField,
-  Button,
-  Paper,
-  Divider,
-  Alert,
-  Snackbar,
-  CircularProgress,
-} from '@mui/material'
+import { Loader2 } from 'lucide-react'
 import MainLayout from '@/components/MainLayout'
 import { usePreferences } from '@/hooks/usePreferences'
 import { UserPreferences } from '@/types'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { toast } from 'sonner'
 
 export default function ParametrosPage() {
   const { preferences, loading, updatePreferences } = usePreferences()
   const [formData, setFormData] = useState<Partial<UserPreferences>>({})
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
 
   useEffect(() => {
     if (preferences) {
@@ -36,208 +31,211 @@ export default function ParametrosPage() {
   const handleSubmit = async () => {
     const success = await updatePreferences(formData)
 
-    setSnackbar({
-      open: true,
-      message: success ? 'Parâmetros salvos com sucesso!' : 'Erro ao salvar parâmetros',
-      severity: success ? 'success' : 'error',
-    })
+    if (success) {
+      toast.success('Parâmetros salvos com sucesso!')
+    } else {
+      toast.error('Erro ao salvar parâmetros')
+    }
   }
 
   if (loading || !preferences) {
     return (
       <MainLayout>
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-            <CircularProgress />
-          </Box>
-        </Container>
+        <div className="container mx-auto max-w-4xl px-4">
+          <div className="flex min-h-[50vh] items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </div>
       </MainLayout>
     )
   }
 
   return (
     <MainLayout>
-      <Container maxWidth="md">
-        <Box sx={{ py: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        <div className="mb-6">
+          <h1 className="mb-2 text-3xl font-bold">
             Parâmetros e Configurações
-          </Typography>
-          <Typography variant="body2" color="text.secondary" paragraph>
+          </h1>
+          <p className="text-sm text-muted-foreground">
             Configure taxas padrão, pesos dos scores e suas preferências pessoais
-          </Typography>
+          </p>
+        </div>
 
-          <Paper sx={{ p: 3, mt: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Taxas Padrão
-            </Typography>
-            <Divider sx={{ mb: 3 }} />
-
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Taxa de Juros Padrão (% a.a.)"
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Taxas Padrão</CardTitle>
+          </CardHeader>
+          <Separator />
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="defaultInterestRate">Taxa de Juros Padrão (% a.a.)</Label>
+                <Input
+                  id="defaultInterestRate"
                   type="number"
+                  step="0.1"
+                  min="0"
                   value={formData.defaultInterestRate || preferences.defaultInterestRate}
                   onChange={(e) => handleChange('defaultInterestRate', parseFloat(e.target.value))}
-                  InputProps={{ inputProps: { min: 0, step: 0.1 } }}
                 />
-              </Grid>
+              </div>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="CET Padrão (% a.a.)"
+              <div>
+                <Label htmlFor="defaultCET">CET Padrão (% a.a.)</Label>
+                <Input
+                  id="defaultCET"
                   type="number"
+                  step="0.1"
+                  min="0"
                   value={formData.defaultCET || preferences.defaultCET}
                   onChange={(e) => handleChange('defaultCET', parseFloat(e.target.value))}
-                  InputProps={{ inputProps: { min: 0, step: 0.1 } }}
                 />
-              </Grid>
+              </div>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Taxa de Vacância Padrão (%)"
+              <div>
+                <Label htmlFor="defaultVacancyRate">Taxa de Vacância Padrão (%)</Label>
+                <Input
+                  id="defaultVacancyRate"
                   type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
                   value={formData.defaultVacancyRate || preferences.defaultVacancyRate}
                   onChange={(e) => handleChange('defaultVacancyRate', parseFloat(e.target.value))}
-                  InputProps={{ inputProps: { min: 0, max: 100, step: 0.1 } }}
                 />
-              </Grid>
+              </div>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Manutenção Padrão (% do aluguel)"
+              <div>
+                <Label htmlFor="defaultMaintenancePercent">Manutenção Padrão (% do aluguel)</Label>
+                <Input
+                  id="defaultMaintenancePercent"
                   type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
                   value={formData.defaultMaintenancePercent || preferences.defaultMaintenancePercent}
                   onChange={(e) => handleChange('defaultMaintenancePercent', parseFloat(e.target.value))}
-                  InputProps={{ inputProps: { min: 0, max: 100, step: 0.1 } }}
                 />
-              </Grid>
+              </div>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Valorização Anual Padrão (%)"
+              <div>
+                <Label htmlFor="defaultAnnualAppreciation">Valorização Anual Padrão (%)</Label>
+                <Input
+                  id="defaultAnnualAppreciation"
                   type="number"
+                  step="0.1"
+                  min="-10"
+                  max="20"
                   value={formData.defaultAnnualAppreciation || preferences.defaultAnnualAppreciation}
                   onChange={(e) => handleChange('defaultAnnualAppreciation', parseFloat(e.target.value))}
-                  InputProps={{ inputProps: { min: -10, max: 20, step: 0.1 } }}
                 />
-              </Grid>
+              </div>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Índice de Reajuste de Aluguel"
+              <div>
+                <Label htmlFor="defaultRentIncreaseIndex">Índice de Reajuste de Aluguel</Label>
+                <Input
+                  id="defaultRentIncreaseIndex"
                   value={formData.defaultRentIncreaseIndex || preferences.defaultRentIncreaseIndex}
                   onChange={(e) => handleChange('defaultRentIncreaseIndex', e.target.value)}
                 />
-              </Grid>
-            </Grid>
-          </Paper>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Paper sx={{ p: 3, mt: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Orçamento e Renda
-            </Typography>
-            <Divider sx={{ mb: 3 }} />
-
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Renda Mensal (R$)"
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Orçamento e Renda</CardTitle>
+          </CardHeader>
+          <Separator />
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="monthlyIncome">Renda Mensal (R$)</Label>
+                <Input
+                  id="monthlyIncome"
                   type="number"
+                  step="100"
+                  min="0"
                   value={formData.monthlyIncome || preferences.monthlyIncome}
                   onChange={(e) => handleChange('monthlyIncome', parseFloat(e.target.value))}
-                  InputProps={{ inputProps: { min: 0, step: 100 } }}
                 />
-              </Grid>
+              </div>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Orçamento Mensal (R$)"
+              <div>
+                <Label htmlFor="monthlyBudget">Orçamento Mensal (R$)</Label>
+                <Input
+                  id="monthlyBudget"
                   type="number"
+                  step="100"
+                  min="0"
                   value={formData.monthlyBudget || preferences.monthlyBudget}
                   onChange={(e) => handleChange('monthlyBudget', parseFloat(e.target.value))}
-                  InputProps={{ inputProps: { min: 0, step: 100 } }}
                 />
-              </Grid>
+              </div>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Máx. Prestação/Renda (%)"
+              <div className="sm:col-span-2">
+                <Label htmlFor="maxPaymentToIncomeRatio">Máx. Prestação/Renda (%)</Label>
+                <Input
+                  id="maxPaymentToIncomeRatio"
                   type="number"
+                  step="1"
+                  min="0"
+                  max="100"
                   value={formData.maxPaymentToIncomeRatio || preferences.maxPaymentToIncomeRatio}
                   onChange={(e) => handleChange('maxPaymentToIncomeRatio', parseFloat(e.target.value))}
-                  helperText="Porcentagem máxima da renda comprometida com prestação"
-                  InputProps={{ inputProps: { min: 0, max: 100, step: 1 } }}
                 />
-              </Grid>
-            </Grid>
-          </Paper>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Porcentagem máxima da renda comprometida com prestação
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Paper sx={{ p: 3, mt: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Impostos
-            </Typography>
-            <Divider sx={{ mb: 3 }} />
-
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Alíquota ITBI (%)"
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Impostos</CardTitle>
+          </CardHeader>
+          <Separator />
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="itbiRate">Alíquota ITBI (%)</Label>
+                <Input
+                  id="itbiRate"
                   type="number"
+                  step="0.1"
+                  min="0"
+                  max="10"
                   value={formData.itbiRate || preferences.itbiRate}
                   onChange={(e) => handleChange('itbiRate', parseFloat(e.target.value))}
-                  InputProps={{ inputProps: { min: 0, max: 10, step: 0.1 } }}
                 />
-              </Grid>
+              </div>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="IR Ganho de Capital (%)"
+              <div>
+                <Label htmlFor="capitalGainsTaxRate">IR Ganho de Capital (%)</Label>
+                <Input
+                  id="capitalGainsTaxRate"
                   type="number"
+                  step="0.1"
+                  min="0"
+                  max="30"
                   value={formData.capitalGainsTaxRate || preferences.capitalGainsTaxRate}
                   onChange={(e) => handleChange('capitalGainsTaxRate', parseFloat(e.target.value))}
-                  InputProps={{ inputProps: { min: 0, max: 30, step: 0.1 } }}
                 />
-              </Grid>
-            </Grid>
-          </Paper>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}>
-            <Button
-              variant="contained"
-              size="large"
-              onClick={handleSubmit}
-            >
-              Salvar Parâmetros
-            </Button>
-          </Box>
-
-          <Snackbar
-            open={snackbar.open}
-            autoHideDuration={6000}
-            onClose={() => setSnackbar({ ...snackbar, open: false })}
-          >
-            <Alert
-              onClose={() => setSnackbar({ ...snackbar, open: false })}
-              severity={snackbar.severity}
-              sx={{ width: '100%' }}
-            >
-              {snackbar.message}
-            </Alert>
-          </Snackbar>
-        </Box>
-      </Container>
+        <div className="flex justify-end">
+          <Button size="lg" onClick={handleSubmit}>
+            Salvar Parâmetros
+          </Button>
+        </div>
+      </div>
     </MainLayout>
   )
 }

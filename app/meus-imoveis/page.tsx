@@ -1,26 +1,18 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState, useMemo } from 'react'
-import {
-  Container,
-  Box,
-  Typography,
-  Grid,
-  Button,
-  CircularProgress,
-  Alert,
-  TextField,
-  MenuItem,
-  InputAdornment,
-  Chip,
-} from '@mui/material'
-import AddIcon from '@mui/icons-material/Add'
-import SearchIcon from '@mui/icons-material/Search'
+import { PlusCircle, Search, Loader2 } from 'lucide-react'
 import MainLayout from '@/components/MainLayout'
 import PropertyCard from '@/components/PropertyCard'
 import { useProperties } from '@/hooks/useProperties'
-import { Property, PropertyType } from '@/types'
+import { PropertyType } from '@/types'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export default function MeusImoveisPage() {
   const router = useRouter()
@@ -68,126 +60,105 @@ export default function MeusImoveisPage() {
   if (loading) {
     return (
       <MainLayout>
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-            <CircularProgress />
-          </Box>
-        </Container>
+        <div className="container mx-auto max-w-6xl px-4">
+          <div className="flex min-h-[50vh] items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </div>
       </MainLayout>
     )
   }
 
   return (
     <MainLayout>
-      <Container maxWidth="lg">
-        <Box sx={{ py: 4 }}>
-          {/* Header */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box>
-              <Typography variant="h4" component="h1" gutterBottom>
-                Meus Imóveis
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {filteredAndSortedProperties.length} {filteredAndSortedProperties.length === 1 ? 'imóvel' : 'imóveis'}
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => router.push('/cadastro')}
-            >
-              Adicionar Imóvel
-            </Button>
-          </Box>
+      <div className="container mx-auto max-w-6xl px-4 py-8">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="mb-1 text-3xl font-bold">
+              Meus Imóveis
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {filteredAndSortedProperties.length} {filteredAndSortedProperties.length === 1 ? 'imóvel' : 'imóveis'}
+            </p>
+          </div>
+          <Button onClick={() => router.push('/cadastro')}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Adicionar Imóvel
+          </Button>
+        </div>
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
-            </Alert>
-          )}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-          {/* Filtros */}
-          <Box sx={{ mb: 4 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={4}>
-                <TextField
-                  fullWidth
-                  placeholder="Buscar por nome, bairro ou cidade"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
+        {/* Filtros */}
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-12">
+          <div className="relative sm:col-span-6">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nome, bairro ou cidade"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
 
-              <Grid item xs={12} sm={3} md={3}>
-                <TextField
-                  fullWidth
-                  select
-                  label="Tipo"
-                  value={typeFilter}
-                  onChange={(e) => setTypeFilter(e.target.value as PropertyType | 'all')}
-                >
-                  <MenuItem value="all">Todos</MenuItem>
-                  <MenuItem value="ready">Pronto</MenuItem>
-                  <MenuItem value="under_construction">Na Planta</MenuItem>
-                </TextField>
-              </Grid>
+          <div className="sm:col-span-3">
+            <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as PropertyType | 'all')}>
+              <SelectTrigger>
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="ready">Pronto</SelectItem>
+                <SelectItem value="under_construction">Na Planta</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-              <Grid item xs={12} sm={3} md={3}>
-                <TextField
-                  fullWidth
-                  select
-                  label="Ordenar por"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as 'newest' | 'price' | 'area')}
-                >
-                  <MenuItem value="newest">Mais Recentes</MenuItem>
-                  <MenuItem value="price">Maior Preço</MenuItem>
-                  <MenuItem value="area">Maior Área</MenuItem>
-                </TextField>
-              </Grid>
-            </Grid>
-          </Box>
+          <div className="sm:col-span-3">
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'newest' | 'price' | 'area')}>
+              <SelectTrigger>
+                <SelectValue placeholder="Ordenar por" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Mais Recentes</SelectItem>
+                <SelectItem value="price">Maior Preço</SelectItem>
+                <SelectItem value="area">Maior Área</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-          {/* Lista de Imóveis */}
-          {filteredAndSortedProperties.length === 0 ? (
-            <Box sx={{ textAlign: 'center', py: 8 }}>
-              <Typography variant="h6" color="text.secondary" gutterBottom>
-                {properties.length === 0 ? 'Nenhum imóvel cadastrado' : 'Nenhum imóvel encontrado'}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" paragraph>
-                {properties.length === 0
-                  ? 'Comece adicionando seu primeiro imóvel ao portfólio'
-                  : 'Tente ajustar os filtros de busca'}
-              </Typography>
-              {properties.length === 0 && (
-                <Button
-                  variant="outlined"
-                  startIcon={<AddIcon />}
-                  onClick={() => router.push('/cadastro')}
-                  sx={{ mt: 2 }}
-                >
-                  Adicionar Primeiro Imóvel
-                </Button>
-              )}
-            </Box>
-          ) : (
-            <Grid container spacing={3}>
-              {filteredAndSortedProperties.map((property) => (
-                <Grid item xs={12} sm={6} md={4} key={property.id}>
-                  <PropertyCard property={property} />
-                </Grid>
-              ))}
-            </Grid>
-          )}
-        </Box>
-      </Container>
+        {/* Lista de Imóveis */}
+        {filteredAndSortedProperties.length === 0 ? (
+          <div className="py-16 text-center">
+            <h2 className="mb-2 text-xl font-semibold text-muted-foreground">
+              {properties.length === 0 ? 'Nenhum imóvel cadastrado' : 'Nenhum imóvel encontrado'}
+            </h2>
+            <p className="mb-6 text-sm text-muted-foreground">
+              {properties.length === 0
+                ? 'Comece adicionando seu primeiro imóvel ao portfólio'
+                : 'Tente ajustar os filtros de busca'}
+            </p>
+            {properties.length === 0 && (
+              <Button variant="outline" onClick={() => router.push('/cadastro')}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Adicionar Primeiro Imóvel
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredAndSortedProperties.map((property) => (
+              <PropertyCard key={property.id} property={property} />
+            ))}
+          </div>
+        )}
+      </div>
     </MainLayout>
   )
 }

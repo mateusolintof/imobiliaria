@@ -1,16 +1,6 @@
-@import "tailwindcss";
-
-@theme {
-  --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-
-  --color-primary: #1976d2;
-  --color-primary-light: #42a5f5;
-  --color-primary-dark: #1565c0;
-
-  --color-secondary: #9c27b0;
-  --color-secondary-light: #ba68c8;
-  --color-secondary-dark: #7b1fa2;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   :root {

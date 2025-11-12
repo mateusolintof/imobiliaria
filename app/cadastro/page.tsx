@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+export const dynamic = 'force-dynamic'
+
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import MainLayout from '@/components/MainLayout'
 import PropertyTypeStep from '@/components/cadastro/PropertyTypeStep'
 import BasicInfoStep from '@/components/cadastro/BasicInfoStep'
@@ -42,10 +44,32 @@ const initialFormData: Partial<PropertyFormData> = {
 
 export default function CadastroPage() {
   const router = useRouter()
-  const { addProperty } = useProperties()
+  const searchParams = useSearchParams()
+  const editId = searchParams.get('edit')
+  const { addProperty, updateProperty, getPropertyById } = useProperties()
   const [activeStep, setActiveStep] = useState(0)
   const [formData, setFormData] = useState<Partial<PropertyFormData>>(initialFormData)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [loading, setLoading] = useState(false)
+
+  // Carregar dados do imóvel quando em modo de edição
+  useEffect(() => {
+    if (editId) {
+      loadProperty(editId)
+    }
+  }, [editId])
+
+  const loadProperty = async (id: string) => {
+    setLoading(true)
+    const property = await getPropertyById(id)
+    if (property) {
+      setFormData(property)
+    } else {
+      toast.error('Imóvel não encontrado')
+      router.push('/cadastro')
+    }
+    setLoading(false)
+  }
 
   const handleNext = () => {
     if (validateStep(activeStep)) {
@@ -94,22 +118,37 @@ export default function CadastroPage() {
     if (!validateStep(activeStep)) return
 
     try {
-      const property = await addProperty(formData as PropertyFormData)
+      let success = false
 
-      if (property) {
-        toast.success('Imóvel cadastrado com sucesso!')
+      if (editId) {
+        // Modo de edição
+        success = await updateProperty(editId, formData as PropertyFormData)
+        if (success) {
+          toast.success('Imóvel atualizado com sucesso!')
+        } else {
+          throw new Error('Erro ao atualizar imóvel')
+        }
+      } else {
+        // Modo de criação
+        const property = await addProperty(formData as PropertyFormData)
+        success = !!property
+        if (success) {
+          toast.success('Imóvel cadastrado com sucesso!')
+        } else {
+          throw new Error('Erro ao cadastrar imóvel')
+        }
+      }
 
+      if (success) {
         // Reset form and redirect after a delay
         setTimeout(() => {
           setFormData(initialFormData)
           setActiveStep(0)
           router.push('/meus-imoveis')
         }, 1500)
-      } else {
-        throw new Error('Erro ao cadastrar imóvel')
       }
     } catch (error: any) {
-      toast.error(error.message || 'Erro ao cadastrar imóvel')
+      toast.error(error.message || (editId ? 'Erro ao atualizar imóvel' : 'Erro ao cadastrar imóvel'))
     }
   }
 
@@ -148,13 +187,32 @@ export default function CadastroPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="container mx-auto max-w-4xl px-4">
+          <div className="flex min-h-[50vh] items-center justify-center">
+            <div className="text-center">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+              <p className="mt-4 text-sm text-muted-foreground">Carregando dados do imóvel...</p>
+            </div>
+          </div>
+        </div>
+      </MainLayout>
+    )
+  }
+
   return (
     <MainLayout>
       <div className="container mx-auto max-w-4xl px-4">
         <div className="rounded-lg bg-white p-8 shadow-sm">
-          <h1 className="mb-2 text-3xl font-bold">Cadastrar Imóvel</h1>
+          <h1 className="mb-2 text-3xl font-bold">
+            {editId ? 'Editar Imóvel' : 'Cadastrar Imóvel'}
+          </h1>
           <p className="mb-8 text-sm text-muted-foreground">
-            Preencha as informações do imóvel para adicioná-lo ao seu portfólio
+            {editId
+              ? 'Atualize as informações do imóvel'
+              : 'Preencha as informações do imóvel para adicioná-lo ao seu portfólio'}
           </p>
 
           {/* Custom Stepper */}
@@ -213,7 +271,9 @@ export default function CadastroPage() {
             </Button>
 
             {activeStep === steps.length - 1 ? (
-              <Button onClick={handleSubmit}>Cadastrar Imóvel</Button>
+              <Button onClick={handleSubmit}>
+                {editId ? 'Salvar Alterações' : 'Cadastrar Imóvel'}
+              </Button>
             ) : (
               <Button onClick={handleNext}>Próximo</Button>
             )}

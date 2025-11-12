@@ -83,6 +83,66 @@ export function useProperties() {
     }
   }
 
+  const toggleFavorite = async (id: string, currentValue: boolean): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from('properties')
+        .update({ isFavorite: !currentValue })
+        .eq('id', id)
+
+      if (error) throw error
+
+      // Atualiza localmente para feedback imediato
+      setProperties(prev => prev.map(p =>
+        p.id === id ? { ...p, isFavorite: !currentValue } : p
+      ))
+      return true
+    } catch (err: any) {
+      setError(err.message)
+      console.error('Error toggling favorite:', err)
+      return false
+    }
+  }
+
+  const toggleVisited = async (id: string, currentValue: boolean): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from('properties')
+        .update({ visited: !currentValue })
+        .eq('id', id)
+
+      if (error) throw error
+
+      // Atualiza localmente para feedback imediato
+      setProperties(prev => prev.map(p =>
+        p.id === id ? { ...p, visited: !currentValue } : p
+      ))
+      return true
+    } catch (err: any) {
+      setError(err.message)
+      console.error('Error toggling visited:', err)
+      return false
+    }
+  }
+
+  const getPropertyById = async (id: string): Promise<Property | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*, developer:developers(*)')
+        .eq('id', id)
+        .single()
+
+      if (error) throw error
+
+      return data as Property
+    } catch (err: any) {
+      setError(err.message)
+      console.error('Error fetching property:', err)
+      return null
+    }
+  }
+
   useEffect(() => {
     fetchProperties()
   }, [])
@@ -95,5 +155,8 @@ export function useProperties() {
     addProperty,
     updateProperty,
     deleteProperty,
+    toggleFavorite,
+    toggleVisited,
+    getPropertyById,
   }
 }

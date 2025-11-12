@@ -1,7 +1,5 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import MainLayout from '@/components/MainLayout'
@@ -26,6 +24,8 @@ import {
   CashFlow,
 } from '@/lib/financialCalc'
 import { formatCurrency } from '@/utils/helpers'
+
+export const dynamic = 'force-dynamic'
 
 export default function InvestimentoPage() {
   const router = useRouter()

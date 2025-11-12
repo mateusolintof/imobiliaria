@@ -31,6 +31,7 @@ import {
   Ruler,
   MoreVertical,
   Heart,
+  Image as ImageIcon,
 } from 'lucide-react'
 import { Property } from '@/types'
 import { formatCurrency, formatArea, formatDate } from '@/utils/helpers'
@@ -89,9 +90,32 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     }
   }
 
+  // Obter imagem de capa (primeira imagem ou placeholder)
+  const coverImage = property.images?.[0]
+
   return (
     <>
-      <Card className="flex h-full flex-col transition-shadow hover:shadow-lg">
+      <Card className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-lg">
+        {/* Imagem de capa */}
+        {coverImage ? (
+          <div className="relative aspect-video w-full overflow-hidden bg-muted">
+            <img
+              src={coverImage}
+              alt={property.name}
+              className="h-full w-full object-cover transition-transform hover:scale-105"
+            />
+            {property.images && property.images.length > 1 && (
+              <div className="absolute bottom-2 right-2 rounded bg-black/70 px-2 py-1 text-xs text-white">
+                +{property.images.length - 1}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex aspect-video w-full items-center justify-center bg-muted">
+            <ImageIcon className="h-12 w-12 text-muted-foreground" />
+          </div>
+        )}
+
         <CardContent className="flex-grow p-4">
           {/* Header com ícone e menu */}
           <div className="mb-4 flex items-start justify-between">

@@ -1,7 +1,5 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import MainLayout from '@/components/MainLayout'
@@ -20,6 +18,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, TrendingDown, TrendingUp, DollarSign, AlertTriangle } from 'lucide-react'
 import { calculateSAC, calculatePRICE, calculatePaymentToIncomeRatio, FinancingSimulation } from '@/lib/financialCalc'
 import { formatCurrency } from '@/utils/helpers'
+
+export const dynamic = 'force-dynamic'
 
 export default function MoradiaPage() {
   const router = useRouter()

@@ -32,7 +32,8 @@ export interface Property {
   type: PropertyType
   developerId?: string
   developer?: Developer
-  photoUrl?: string
+  photoUrl?: string // Mantido para compatibilidade
+  images?: string[] // Array de URLs de imagens
   address: {
     street: string
     number: string

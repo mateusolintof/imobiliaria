@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { PropertyFormData, ConstructionPhase } from '@/types'
+import ImageUpload from '@/components/ImageUpload'
 
 interface FinancialInfoStepProps {
   formData: Partial<PropertyFormData>
@@ -249,6 +250,15 @@ export default function FinancialInfoStep({ formData, onChange, errors }: Financ
             </div>
           </>
         )}
+
+        <Separator className="my-6" />
+
+        <ImageUpload
+          images={formData.images || []}
+          onChange={(images) => onChange({ images })}
+          propertyId={undefined}
+          maxImages={10}
+        />
       </div>
     </div>
   )

@@ -1,7 +1,5 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import MainLayout from '@/components/MainLayout'
@@ -14,6 +12,8 @@ import { useProperties } from '@/hooks/useProperties'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
+
+export const dynamic = 'force-dynamic'
 
 const steps = ['Tipo de Imóvel', 'Informações Básicas', 'Dados Financeiros']
 
@@ -38,6 +38,7 @@ const initialFormData: Partial<PropertyFormData> = {
   iptu: 0,
   amenities: [],
   tags: [],
+  images: [],
   isFavorite: false,
   visited: false,
 }

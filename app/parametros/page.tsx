@@ -28,6 +28,8 @@ export default function ParametrosPage() {
     setFormData((prev: any) => ({ ...prev, [field]: value }))
   }
 
+  const toNumberOrUndefined = (v: string) => (v === '' ? undefined : parseFloat(v))
+
   const handleSubmit = async () => {
     const success = await updatePreferences(formData)
 
@@ -76,8 +78,8 @@ export default function ParametrosPage() {
                   type="number"
                   step="0.1"
                   min="0"
-                  value={formData.defaultInterestRate || preferences.defaultInterestRate}
-                  onChange={(e) => handleChange('defaultInterestRate', parseFloat(e.target.value))}
+                  value={formData.defaultInterestRate ?? preferences.defaultInterestRate}
+                  onChange={(e) => handleChange('defaultInterestRate', toNumberOrUndefined(e.target.value))}
                 />
               </div>
 
@@ -88,8 +90,8 @@ export default function ParametrosPage() {
                   type="number"
                   step="0.1"
                   min="0"
-                  value={formData.defaultCET || preferences.defaultCET}
-                  onChange={(e) => handleChange('defaultCET', parseFloat(e.target.value))}
+                  value={formData.defaultCET ?? preferences.defaultCET}
+                  onChange={(e) => handleChange('defaultCET', toNumberOrUndefined(e.target.value))}
                 />
               </div>
 
@@ -101,8 +103,8 @@ export default function ParametrosPage() {
                   step="0.1"
                   min="0"
                   max="100"
-                  value={formData.defaultVacancyRate || preferences.defaultVacancyRate}
-                  onChange={(e) => handleChange('defaultVacancyRate', parseFloat(e.target.value))}
+                  value={formData.defaultVacancyRate ?? preferences.defaultVacancyRate}
+                  onChange={(e) => handleChange('defaultVacancyRate', toNumberOrUndefined(e.target.value))}
                 />
               </div>
 
@@ -114,8 +116,8 @@ export default function ParametrosPage() {
                   step="0.1"
                   min="0"
                   max="100"
-                  value={formData.defaultMaintenancePercent || preferences.defaultMaintenancePercent}
-                  onChange={(e) => handleChange('defaultMaintenancePercent', parseFloat(e.target.value))}
+                  value={formData.defaultMaintenancePercent ?? preferences.defaultMaintenancePercent}
+                  onChange={(e) => handleChange('defaultMaintenancePercent', toNumberOrUndefined(e.target.value))}
                 />
               </div>
 
@@ -127,8 +129,8 @@ export default function ParametrosPage() {
                   step="0.1"
                   min="-10"
                   max="20"
-                  value={formData.defaultAnnualAppreciation || preferences.defaultAnnualAppreciation}
-                  onChange={(e) => handleChange('defaultAnnualAppreciation', parseFloat(e.target.value))}
+                  value={formData.defaultAnnualAppreciation ?? preferences.defaultAnnualAppreciation}
+                  onChange={(e) => handleChange('defaultAnnualAppreciation', toNumberOrUndefined(e.target.value))}
                 />
               </div>
 
@@ -136,7 +138,7 @@ export default function ParametrosPage() {
                 <Label htmlFor="defaultRentIncreaseIndex">Índice de Reajuste de Aluguel</Label>
                 <Input
                   id="defaultRentIncreaseIndex"
-                  value={formData.defaultRentIncreaseIndex || preferences.defaultRentIncreaseIndex}
+                  value={formData.defaultRentIncreaseIndex ?? preferences.defaultRentIncreaseIndex}
                   onChange={(e) => handleChange('defaultRentIncreaseIndex', e.target.value)}
                 />
               </div>
@@ -158,8 +160,8 @@ export default function ParametrosPage() {
                   type="number"
                   step="100"
                   min="0"
-                  value={formData.monthlyIncome || preferences.monthlyIncome}
-                  onChange={(e) => handleChange('monthlyIncome', parseFloat(e.target.value))}
+                  value={formData.monthlyIncome ?? preferences.monthlyIncome}
+                  onChange={(e) => handleChange('monthlyIncome', toNumberOrUndefined(e.target.value))}
                 />
               </div>
 
@@ -170,8 +172,8 @@ export default function ParametrosPage() {
                   type="number"
                   step="100"
                   min="0"
-                  value={formData.monthlyBudget || preferences.monthlyBudget}
-                  onChange={(e) => handleChange('monthlyBudget', parseFloat(e.target.value))}
+                  value={formData.monthlyBudget ?? preferences.monthlyBudget}
+                  onChange={(e) => handleChange('monthlyBudget', toNumberOrUndefined(e.target.value))}
                 />
               </div>
 
@@ -183,8 +185,8 @@ export default function ParametrosPage() {
                   step="1"
                   min="0"
                   max="100"
-                  value={formData.maxPaymentToIncomeRatio || preferences.maxPaymentToIncomeRatio}
-                  onChange={(e) => handleChange('maxPaymentToIncomeRatio', parseFloat(e.target.value))}
+                  value={formData.maxPaymentToIncomeRatio ?? preferences.maxPaymentToIncomeRatio}
+                  onChange={(e) => handleChange('maxPaymentToIncomeRatio', toNumberOrUndefined(e.target.value))}
                 />
                 <p className="mt-1 text-sm text-muted-foreground">
                   Porcentagem máxima da renda comprometida com prestação
@@ -209,8 +211,8 @@ export default function ParametrosPage() {
                   step="0.1"
                   min="0"
                   max="10"
-                  value={formData.itbiRate || preferences.itbiRate}
-                  onChange={(e) => handleChange('itbiRate', parseFloat(e.target.value))}
+                  value={formData.itbiRate ?? preferences.itbiRate}
+                  onChange={(e) => handleChange('itbiRate', toNumberOrUndefined(e.target.value))}
                 />
               </div>
 
@@ -222,8 +224,8 @@ export default function ParametrosPage() {
                   step="0.1"
                   min="0"
                   max="30"
-                  value={formData.capitalGainsTaxRate || preferences.capitalGainsTaxRate}
-                  onChange={(e) => handleChange('capitalGainsTaxRate', parseFloat(e.target.value))}
+                  value={formData.capitalGainsTaxRate ?? preferences.capitalGainsTaxRate}
+                  onChange={(e) => handleChange('capitalGainsTaxRate', toNumberOrUndefined(e.target.value))}
                 />
               </div>
             </div>
@@ -231,7 +233,7 @@ export default function ParametrosPage() {
         </Card>
 
         <div className="flex justify-end">
-          <Button size="lg" onClick={handleSubmit}>
+          <Button size="lg" onClick={handleSubmit} disabled={!preferences?.id}>
             Salvar Parâmetros
           </Button>
         </div>

@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase, mapDbRowToUserPreferences, mapUserPreferencesToDb } from '@/lib/supabase'
 import { UserPreferences } from '@/types'
 
 const DEFAULT_PREFERENCES: Omit<UserPreferences, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -53,28 +53,23 @@ export function usePreferences() {
       }
 
       if (data) {
-        setPreferences(data as UserPreferences)
+        setPreferences(mapDbRowToUserPreferences(data))
       } else {
         // Criar preferências padrão se não existirem
+        const toInsert = mapUserPreferencesToDb(DEFAULT_PREFERENCES)
         const { data: newPrefs, error: insertError } = await supabase
           .from('user_preferences')
-          .insert([DEFAULT_PREFERENCES])
-          .select()
+          .insert([toInsert])
+          .select('*')
           .single()
 
         if (insertError) throw insertError
-        setPreferences(newPrefs as UserPreferences)
+        setPreferences(mapDbRowToUserPreferences(newPrefs))
       }
     } catch (err: any) {
       setError(err.message)
       console.error('Error fetching preferences:', err)
-      // Use defaults in memory if DB fails
-      setPreferences({
-        id: 'temp',
-        ...DEFAULT_PREFERENCES,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as UserPreferences)
+      // Mantém o estado anterior; evita criar ID inválido no cliente
     } finally {
       setLoading(false)
     }
@@ -84,9 +79,19 @@ export function usePreferences() {
     try {
       if (!preferences?.id) return false
 
+      // Sanitizar: remover undefined/NaN
+      const sanitized: Partial<UserPreferences> = {}
+      for (const [k, v] of Object.entries(updates)) {
+        if (v === undefined || v === null) continue
+        if (typeof v === 'number' && Number.isNaN(v)) continue
+        // @ts-expect-error index ok
+        sanitized[k] = v
+      }
+
+      const dbUpdates = mapUserPreferencesToDb(sanitized)
       const { error } = await supabase
         .from('user_preferences')
-        .update(updates)
+        .update(dbUpdates)
         .eq('id', preferences.id)
 
       if (error) throw error

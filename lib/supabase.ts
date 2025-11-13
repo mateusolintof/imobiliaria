@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import type { Property } from '@/types'
+import type { Property, UserPreferences } from '@/types'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -251,6 +251,58 @@ export function mapPropertyToDb(
   if (input.tags !== undefined) out.tags = input.tags
   if (input.isFavorite !== undefined) out.is_favorite = input.isFavorite
   if (input.visited !== undefined) out.visited = input.visited
+
+  return out
+}
+
+// ---- User Preferences mappers ----
+export function mapDbRowToUserPreferences(
+  row: Database['public']['Tables']['user_preferences']['Row']
+): UserPreferences {
+  return {
+    id: row.id,
+    userId: row.user_id || undefined,
+    defaultInterestRate: Number(row.default_interest_rate),
+    defaultCET: Number(row.default_cet),
+    defaultMaintenancePercent: Number(row.default_maintenance_percent),
+    defaultVacancyRate: Number(row.default_vacancy_rate),
+    defaultAnnualAppreciation: Number(row.default_annual_appreciation),
+    defaultRentIncreaseIndex: row.default_rent_increase_index,
+    housingWeights: row.housing_weights as any,
+    investmentWeights: row.investment_weights as any,
+    monthlyBudget: Number(row.monthly_budget),
+    monthlyIncome: Number(row.monthly_income),
+    maxPaymentToIncomeRatio: Number(row.max_payment_to_income_ratio),
+    itbiRate: Number(row.itbi_rate),
+    capitalGainsTaxRate: Number(row.capital_gains_tax_rate),
+    currency: row.currency,
+    timezone: row.timezone,
+    createdAt: new Date(row.created_at),
+    updatedAt: new Date(row.updated_at),
+  }
+}
+
+export function mapUserPreferencesToDb(
+  input: Partial<UserPreferences>
+): Partial<Database['public']['Tables']['user_preferences']['Row']> {
+  const out: any = {}
+
+  if (input.userId !== undefined) out.user_id = input.userId || null
+  if (input.defaultInterestRate !== undefined && !Number.isNaN(input.defaultInterestRate)) out.default_interest_rate = input.defaultInterestRate
+  if (input.defaultCET !== undefined && !Number.isNaN(input.defaultCET)) out.default_cet = input.defaultCET
+  if (input.defaultMaintenancePercent !== undefined && !Number.isNaN(input.defaultMaintenancePercent)) out.default_maintenance_percent = input.defaultMaintenancePercent
+  if (input.defaultVacancyRate !== undefined && !Number.isNaN(input.defaultVacancyRate)) out.default_vacancy_rate = input.defaultVacancyRate
+  if (input.defaultAnnualAppreciation !== undefined && !Number.isNaN(input.defaultAnnualAppreciation)) out.default_annual_appreciation = input.defaultAnnualAppreciation
+  if (input.defaultRentIncreaseIndex !== undefined) out.default_rent_increase_index = input.defaultRentIncreaseIndex
+  if (input.housingWeights !== undefined) out.housing_weights = input.housingWeights as any
+  if (input.investmentWeights !== undefined) out.investment_weights = input.investmentWeights as any
+  if (input.monthlyBudget !== undefined && !Number.isNaN(input.monthlyBudget)) out.monthly_budget = input.monthlyBudget
+  if (input.monthlyIncome !== undefined && !Number.isNaN(input.monthlyIncome)) out.monthly_income = input.monthlyIncome
+  if (input.maxPaymentToIncomeRatio !== undefined && !Number.isNaN(input.maxPaymentToIncomeRatio)) out.max_payment_to_income_ratio = input.maxPaymentToIncomeRatio
+  if (input.itbiRate !== undefined && !Number.isNaN(input.itbiRate)) out.itbi_rate = input.itbiRate
+  if (input.capitalGainsTaxRate !== undefined && !Number.isNaN(input.capitalGainsTaxRate)) out.capital_gains_tax_rate = input.capitalGainsTaxRate
+  if (input.currency !== undefined) out.currency = input.currency
+  if (input.timezone !== undefined) out.timezone = input.timezone
 
   return out
 }
